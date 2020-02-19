@@ -8,8 +8,8 @@
   |   NAME     |     SID   |
   |------------|-----------|
   |JIANG Yuan  |  19437579 |      
-  |HE Jiaxin   |  19441754 |    
-  |HUANG Yue   |  19       |   
+  |HE Tianxin  |  19434413 |    
+  |HUANG Yue   |  19441754 |   
   
   
 ## Project Information
