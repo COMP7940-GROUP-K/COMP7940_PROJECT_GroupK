@@ -21,7 +21,7 @@ Optional Process:
 >>2a. Users doesn't allow line to open the phone location function, and the robot asks him to turn on the positioning function.
 
 ### Function3: Mask Purchase Address (2 Plans, Depending on the Situation)
-Plan A: Locate and Navigate Routes
+###### Plan A: Locate and Navigate Routes
 >
 Main Process:
 >1. The user enters the latest positioning.
@@ -33,7 +33,7 @@ Optional Process:
 >
 >>3b. The user has error about the navigation route and the robot asks him to switch the third-party software.
 >
-Plan B: Locate and Shopping Links
+##### Plan B: Locate and Shopping Links
 >
 Main Process:
 >>1. The user enters the latest positioning.
