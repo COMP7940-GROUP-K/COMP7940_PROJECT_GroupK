@@ -1,5 +1,5 @@
 # Chatbot Design (Line Version)
-# Function1: Self-assessment / Check Physical Condition
+### Function1: Self-assessment / Check Physical Condition
 Main Process:
 >>1. The user enters the keyword [Self-examination of new coronary pneumonia].
 >>2. The robot sends an option to chat.
@@ -10,7 +10,7 @@ Optional Process:
 >>1a. The user fails to send a text reply, and the robot asks him to enable the video function.
 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;1b. The automatic reply cannot be judged ,and the robot asks him to call the prompt hotline.
 
-# Function2: View the Epidemic Situation Map and the Number of Infected People
+### Function2: View the Epidemic Situation Map and the Number of Infected People
 Main Process:
 >>1. The user has his location and enters the keyword [outbreak distribution].
 >>2. The robot clicks on epidemic map information.
@@ -20,13 +20,13 @@ Main Process:
 Optional Process:
 >>2a. Users doesn't allow line to open the phone location function, and the robot asks him to turn on the positioning function.
 
-# Function3: Mask Purchase Address (2 Plans, Depending on the Situation)
+### Function3: Mask Purchase Address (2 Plans, Depending on the Situation)
 Plan A: Locate and Navigate Routes
 >
 Main Process:
 >1. The user enters the latest positioning.
 >
->2.The robot recommends places and navigation routes for selling masks nearby.
+>2. The robot recommends places and navigation routes for selling masks nearby.
 >
 Optional Process:
 >>3a. Users doesn't allow line to open the phone location function, and the robot asks him to turn on the positioning function.
