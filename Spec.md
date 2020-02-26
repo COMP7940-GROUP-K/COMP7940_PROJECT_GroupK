@@ -24,9 +24,9 @@ Optional Process:
 #### Plan A: Locate and Navigate Routes
 >
 Main Process:
->1. The user enters the latest positioning.
+>>1. The user enters the latest positioning.
 >
->2. The robot recommends places and navigation routes for selling masks nearby.
+>>2. The robot recommends places and navigation routes for selling masks nearby.
 >
 Optional Process:
 >>1a. Users doesn't allow Line to open the phone location function, and the robot asks him to turn on the positioning function.
