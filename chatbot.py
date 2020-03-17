@@ -25,7 +25,9 @@ from linebot.utils import PY3
 
 from bs4 import BeautifulSoup
 
+
 app = Flask(__name__)
+
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET','c15ac0aa957a0eb2c158fb66dbf70b72' ) 
@@ -167,6 +169,26 @@ def handle_TextMessage(event):
                         label='yes',
                         text='yes',
                         uri='tel:000000'
+                    ),
+                    MessageTemplateAction(
+                        label='no',
+                        text='no'
+                    )
+                ]
+            )
+        )
+        line_bot_api.reply_message(event.reply_token, message)
+
+    elif 'self_check' in event.message.text:
+        message = TemplateSendMessage(
+            alt_text='Confirm template',
+            template=ConfirmTemplate(  
+                text='Would you like to answering the following questions?',
+                actions=[
+                    PostbackTemplateAction(
+                        label='yes',
+                        text='yes',
+                        data='action=buy&itemid=1'
                     ),
                     MessageTemplateAction(
                         label='no',
