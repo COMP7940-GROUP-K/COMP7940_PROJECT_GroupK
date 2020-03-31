@@ -1,37 +1,34 @@
 from __future__ import unicode_literals
 
+import configparser
 import os
 import sys
-import redis
-
 from argparse import ArgumentParser
 
-from flask import Flask, request, abort
 import requests
-
-from linebot import (
-    LineBotApi, WebhookParser
-)
+from flask import Flask, request, abort
+from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import (
     InvalidSignatureError
 )
-
 from linebot.models import *
-#(
- #   MessageEvent, TextMessage, TextSendMessage, ImageMessage, VideoMessage, FileMessage, StickerMessage, StickerSendMessage,
-  #  VideoSendMessage,TemplateSendMessage,ConfirmTemplate,PostbackTemplateAction,MessageTemplateAction
-#)
-from linebot.utils import PY3
 
-from bs4 import BeautifulSoup
-
+# (
+#   MessageEvent, TextMessage, TextSendMessage, ImageMessage, VideoMessage, FileMessage, StickerMessage, StickerSendMessage,
+#  VideoSendMessage,TemplateSendMessage,ConfirmTemplate,PostbackTemplateAction,MessageTemplateAction
+# )
+# from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 
+# ref. https://docs.python.org/3/library/configparser.html
+config = configparser.ConfigParser()
+config.read("config.ini")
 
 # get channel_secret and channel_access_token from your environment variable
-channel_secret = os.getenv('LINE_CHANNEL_SECRET','c15ac0aa957a0eb2c158fb66dbf70b72' ) 
-channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', 'nd3QnT44stVAGwLunsHIB8b2h81FXaToEQ7Dr4GmgJPm8blYvdWx1ptq8mWOLU23ER80P3WctDUwyS2nf8lEXYJMThKR+qFKftNmmmco3asMSA6wuqu9N8NKLr1Mu/wj5aavT9RhTeNnrJBf0Wc4VAdB04t89/1O/w1cDnyilFU=')#
+channel_secret = os.getenv('LINE_CHANNEL_SECRET', 'c15ac0aa957a0eb2c158fb66dbf70b72')
+channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN',
+                                 'nd3QnT44stVAGwLunsHIB8b2h81FXaToEQ7Dr4GmgJPm8blYvdWx1ptq8mWOLU23ER80P3WctDUwyS2nf8lEXYJMThKR+qFKftNmmmco3asMSA6wuqu9N8NKLr1Mu/wj5aavT9RhTeNnrJBf0Wc4VAdB04t89/1O/w1cDnyilFU=')  #
 
 # obtain the port that heroku assigned to this app.
 heroku_port = os.getenv('PORT', None)
@@ -45,6 +42,9 @@ if channel_access_token is None:
 
 line_bot_api = LineBotApi(channel_access_token)
 parser = WebhookParser(channel_secret)
+
+# AMAP_API_KEY
+AMAP_API_KEY = 'b5b581b926e1a908f35f09094bcf413c'
 
 
 @app.route("/callback", methods=['POST'])
@@ -84,8 +84,6 @@ def callback():
     return 'OK'
 
 
-
-
 # Handler function for Sticker Message
 def handle_StickerMessage(event):
     line_bot_api.reply_message(
@@ -95,41 +93,46 @@ def handle_StickerMessage(event):
             sticker_id=event.message.sticker_id)
     )
 
+
 # Handler function for Image Message
 def handle_ImageMessage(event):
     line_bot_api.reply_message(
-	event.reply_token,
-	TextSendMessage(text="Nice image!")
+        event.reply_token,
+        TextSendMessage(text="Nice image!")
     )
+
 
 # Handler function for Video Message
 def handle_VideoMessage(event):
     line_bot_api.reply_message(
-	event.reply_token,
-	TextSendMessage(text="Nice video!")
+        event.reply_token,
+        TextSendMessage(text="Nice video!")
     )
+
 
 # Handler function for File Message
 def handle_FileMessage(event):
     line_bot_api.reply_message(
-	event.reply_token,
-	TextSendMessage(text="Nice file!")
+        event.reply_token,
+        TextSendMessage(text="Nice file!")
     )
+
 
 # Self check process
 def get_news():
     resp = requests.get('https://interface.sina.cn/news/wap/fymap2020_data.d.json')
     jresp = resp.json()
-    result_title = jresp['results']['title']  #这里是个关于title的数组？
+    result_title = jresp['results']['title']  # 这里是个关于title的数组？
     result_summary = jresp['results']['summary']
     result_sourceUrl = jresp['results']['sourceUrl']
     content = ""
     content = f'{result_title}'
-    #for index,rs in result_title:
+    # for index,rs in result_title:
     #    if index == 4:
     #       return content
     #    content += f'{rs}\n\n'
     return content
+
 
 def apple_news():
     target_url = 'https://tw.appledaily.com/new/realtime'
@@ -145,13 +148,11 @@ def apple_news():
         content += '{}\n\n'.format(link)
     return content
 
-     
-
 
 # Handler function for Text Message
 def handle_TextMessage(event):
     print(event.message.text)
-    
+
     if 'vedio' in event.message.text:
         message = VideoSendMessage(
             original_content_url='https://youtu.be/mOV1aBVYKGA',
@@ -162,7 +163,7 @@ def handle_TextMessage(event):
     elif 'call' in event.message.text:
         message = TemplateSendMessage(
             alt_text='Confirm template',
-            template=ConfirmTemplate(  
+            template=ConfirmTemplate(
                 text='Are you sure to call for help?',
                 actions=[
                     URIAction(
@@ -179,36 +180,17 @@ def handle_TextMessage(event):
         )
         line_bot_api.reply_message(event.reply_token, message)
 
-    elif 'self_check' in event.message.text:
-        message = TemplateSendMessage(
-            alt_text='Confirm template',
-            template=ConfirmTemplate(  
-                text='Would you like to answering the following questions?',
-                actions=[
-                    PostbackTemplateAction(
-                        label='yes',
-                        text='yes',
-                        data='action=buy&itemid=1'
-                    ),
-                    MessageTemplateAction(
-                        label='no',
-                        text='no'
-                    )
-                ]
-            )
-        )
-        line_bot_api.reply_message(event.reply_token, message)
-
     elif 'news' in event.message.text:
         resp = requests.get('https://interface.sina.cn/news/wap/fymap2020_data.d.json')
         jresp = resp.json()
-        result_title = jresp['results']['title']  #这里是个关于title的数组？
+        result_title = jresp['results']['title']  # 这里是个关于title的数组？
         result_summary = jresp['results']['summary']
         result_sourceUrl = jresp['results']['sourceUrl']
 
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=f'Title :{result_title},\n Summary :{result_summary},\n Source Url :{result_sourceUrl}'  ))
+            TextSendMessage(
+                text=f'Title :{result_title},\n Summary :{result_summary},\n Source Url :{result_sourceUrl}'))
 
     elif event.message.text == "apple news":
         content = apple_news()
@@ -216,26 +198,57 @@ def handle_TextMessage(event):
             event.reply_token,
             TextSendMessage(text=content))
 
-    elif 'hospital' in event.message.text:
+    elif 'location' in event.message.text:
         line_bot_api.reply_message(
-            event.reply_token,LocationSendMessage(
-                title='Hospital location', 
-                address='Hong Kong Baptist Hospital', 
-                latitude=22.342483, 
+            event.reply_token, LocationSendMessage(
+                title='Hospital location',
+                address='Hong Kong Baptist Hospital',
+                latitude=22.342483,
                 longitude=114.191687
             )
         )
 
+    elif 'nearest hospital to' in event.message.text:
+        if event.message.text[20:-1] == "":
+            address = "香港浸会大学"
+        else:
+            address = event.message.text[20:-1]
+
+        addurl1 = 'https://restapi.amap.com/v3/geocode/geo?address={}&output=JSON&key={}'.format(address, AMAP_API_KEY)
+        addressReq = requests.get(addurl1)
+        addressDoc = addressReq.json()
+        location = addressDoc['geocodes'][0]['location']
+
+        addurl2 = 'https://restapi.amap.com/v3/place/around?key={}&location={}&radius=10000&types=090100&extensions=base&offset=3'.format(
+            AMAP_API_KEY, location)
+        addressReq = requests.get(addurl2)
+        addressDoc = addressReq.json()
+        sugName0 = addressDoc['pois'][0]['name']
+        sugAddress0 = addressDoc['pois'][0]['address']
+        sugName1 = addressDoc['pois'][1]['name']
+        sugAddress1 = addressDoc['pois'][1]['address']
+        sugName2 = addressDoc['pois'][2]['name']
+        sugAddress2 = addressDoc['pois'][2]['address']
+
+        msg = f'为您找到最近的的三家医院及地址：\n 1. {sugName0}  {sugAddress0}\n 2. {sugName1}  {sugAddress1}\n 3. {sugName2}  {sugAddress2}'
+
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(msg)
+        )
+
+
     elif 'real time data' in event.message.text:
         resp = requests.get('https://interface.sina.cn/news/wap/fymap2020_data.d.json')
         jresp = resp.json()
-        data_gntotal = jresp['data']['gntotal']  
+        data_gntotal = jresp['data']['gntotal']
         data_deathtotal = jresp['data']['deathtotal']
         data_curetotal = jresp['data']['curetotal']
 
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=f'Total infected persons number in China :{data_gntotal},\n Death total :{data_deathtotal},\n Cure total :{data_curetotal}'  ))
+            TextSendMessage(
+                text=f'Total infected persons number in China :{data_gntotal},\n Death total :{data_deathtotal},\n Cure total :{data_curetotal}'))
 
     elif event.message.text == "Hello":
         buttons_template = TemplateSendMessage(
@@ -255,23 +268,19 @@ def handle_TextMessage(event):
                     ),
                     MessageTemplateAction(
                         label='Hospital location',
-                        text='hospital'
+                        text='location'
                     ),
                 ]
             )
         )
         line_bot_api.reply_message(event.reply_token, buttons_template)
-        
-    else: 
+
+    else:
         msg = 'You said: "' + event.message.text + '" '
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(msg)
         )
-
-        
-    
-
 
 
 if __name__ == "__main__":
