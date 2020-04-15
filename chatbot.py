@@ -10,7 +10,7 @@ import requests
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import (
-    InvalidSignatureError
+    InvalidSignatureError, LineBotApiError
 )
 from linebot.models import *
 
@@ -238,7 +238,7 @@ def handle_TextMessage(event):
         )
 
     elif 'nearest hospital to' in event.message.text:
-        if event.message.text[20:-1] == "":
+        if event.message.text[20:] == "":
             address = "香港浸会大学"
         else:
             address = event.message.text[20:-1]
@@ -311,12 +311,12 @@ def handle_TextMessage(event):
             alt_text='start template',
             template=ButtonsTemplate(
                 title='Services',
-                text='Hi,’+‘ I am firegod~ What can I help you?',
+                text='Hi, I am firegod~ What can I help you?',
                 thumbnail_image_url='https://cdn.dribbble.com/users/1144347/screenshots/4479125/baymax_dribble.png',
                 actions=[
                     MessageTemplateAction(
-                        label='Self check',
-                        text='self check'
+                        label='Real time news',
+                        text='news'
                     ),
                     MessageTemplateAction(
                         label='Real time data',
@@ -352,10 +352,16 @@ def handle_TextMessage(event):
         )
 
     elif event.message.text == "user id":
-        # LineProfile profile = lineApiClient.getProfile().getResponseData()
+        '''
+        try:
+            profile = line_bot_api.get_profile('<user_id>')
+            msg = f'您的ID为：\n{profile.user_id}'
+        except LineBotApiError as e:
+            e.message
+        '''
         user_id = SourceUser.sender_id
-
         msg = f'您的ID为：\n{user_id}'
+
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(msg),
