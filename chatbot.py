@@ -46,8 +46,11 @@ parser = WebhookParser(channel_secret)
 # AMAP_API_KEY
 AMAP_API_KEY = 'b5b581b926e1a908f35f09094bcf413c'
 
+# Global Count
+Count = 0
 
 @app.route("/callback", methods=['POST'])
+
 def callback():
     signature = request.headers['X-Line-Signature']
 
@@ -63,6 +66,8 @@ def callback():
 
     # if event is MessageEvent and message is TextMessage, then echo text
     for event in events:
+        if isinstance(event, PostbackEvent):
+            handle_PosbackEvent(event)
         if not isinstance(event, MessageEvent):
             continue
         if isinstance(event.message, TextMessage):
@@ -84,8 +89,162 @@ def callback():
     return 'OK'
 
 
+
+# Handler function for PostbackEvent
+def handle_PosbackEvent(event):
+    global Count
+
+    if "action=question1" in event.postback.data:
+        if "ansNo" in event.postback.data:
+            Count += 1
+
+        message = TemplateSendMessage(
+            alt_text='Confirm template',
+            template=ConfirmTemplate(
+                text='Question2: Are you currently required to undergo compulsory quarantine by the HKSAR Government?',
+                actions=[
+                    PostbackAction(
+                        label='yes',
+                        display_text='yes',
+                        data='action=question2&ansYes'
+                    ),
+                    PostbackAction(
+                        label='no',
+                        display_text='no',
+                        data='action=question2&ansNo'
+                    )
+                ]
+            )
+        )
+        line_bot_api.reply_message(event.reply_token, message)
+
+    elif "action=question2" in event.postback.data:
+        if "ansNo" in event.postback.data:
+            Count += 1
+
+        message = TemplateSendMessage(
+            alt_text='Confirm template',
+            template=ConfirmTemplate(
+                text='Question3: Do you have any of the following symtoms?(Fever,fatigue,cough,diarrhoea,vomiting or flu-like symtoms)',
+                actions=[
+                    PostbackAction(
+                        label='yes',
+                        display_text='yes',
+                        data='action=question3&ansYes'
+                    ),
+                    PostbackAction(
+                        label='no',
+                        display_text='no',
+                        data='action=question3&ansNo'
+                    )
+                ]
+            )
+        )
+        line_bot_api.reply_message(event.reply_token, message)
+
+    elif "action=question3" in event.postback.data:
+        if "ansNo" in event.postback.data:
+            Count += 1
+
+        message = TemplateSendMessage(
+            alt_text='Confirm template',
+            template=ConfirmTemplate(
+                text='Question4: Have you been in close contact with any confirmed or suspected cases of novel coronavirus?',
+                actions=[
+                    PostbackAction(
+                        label='yes',
+                        display_text='yes',
+                        data='action=question4&ansYes'
+                    ),
+                    PostbackAction(
+                        label='no',
+                        display_text='no',
+                        data='action=question4&ansNo'
+                    )
+                ]
+            )
+        )
+        line_bot_api.reply_message(event.reply_token, message)
+
+    elif "action=question4" in event.postback.data:
+        if "ansNo" in event.postback.data:
+            Count += 1
+
+        # Check the count
+        if Count == 4:
+            msg = f'You little possible to get illness:( {Count})'
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(msg))
+        elif Count > 1:
+            msg = f'You are likely to get illness:({Count})'
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(msg))
+        else:
+            msg = f'You are in the risk of illness:({Count})'
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(msg))
+
+        # 清零
+        Count = 0
+
+
+    else:
+        msg = f'No Match:：\n {Count}'
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(msg))
+
+
+'''
+    if "action=question1" in event.postback.data:
+
+        if "Yes" in event.postback.data:
+            tempCount += 1
+
+        else:
+            tempCount = 100
+
+        TemplateSendMessage(
+            alt_text='Confirm template',
+            template=ConfirmTemplate(
+                text='Question2?',
+                actions=[
+                    PostbackAction(
+                        label='yes',
+                        text='yes',
+                        data='action=question2&ansYes'
+                    ),
+                    PostbackAction(
+                        label='no',
+                        text='no',
+                        data='action=question2&ansNo'
+                    )
+                ]
+            )
+        )
+
+    elif "action=question2" in event.postback.data:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text="TempCount : "+tempCount)
+        )
+
+'''
+
+
+
+
+
+
+
+
+
 # Handler function for Sticker Message
 def handle_StickerMessage(event):
+
     line_bot_api.reply_message(
         event.reply_token,
         StickerSendMessage(
@@ -405,7 +564,28 @@ def handle_TextMessage(event):
             TextSendMessage('Hi,' + msg + ' what can help you?')
         )
 
-    # elif "self check" in event.message.text:
+    elif "self check" in event.message.text:
+
+        message = TemplateSendMessage(
+            alt_text='Confirm template',
+            template=ConfirmTemplate(
+                text='Question1: Have you travelled outside Hong Kong in the last 14 days?',
+                actions=[
+                    PostbackAction(
+                        label='yes',
+                        display_text='yes',
+                        data='action=question1&ansYes'
+                    ),
+                    PostbackAction(
+                        label='no',
+                        display_text='no',
+                        data='action=question1&ansNo'
+                    )
+                ]
+            )
+        )
+        line_bot_api.reply_message(event.reply_token, message)
+
 
     else:
         msg = 'You said: "' + event.message.text + '" '
